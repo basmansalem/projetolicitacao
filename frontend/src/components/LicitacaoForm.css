@@ -1,0 +1,174 @@
+.licitacao-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.form-header {
+    margin-bottom: 2rem;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: var(--primary);
+}
+
+.form-header h1 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Form */
+.licitacao-form {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.required {
+    color: var(--danger);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 1rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Error State */
+.form-group.has-error input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+    border-color: var(--danger);
+}
+
+.error-message {
+    color: var(--danger);
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.error-message::before {
+    content: '⚠️';
+    font-size: 0.75rem;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Loading */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 1rem;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--bg-tertiary);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .licitacao-form-container {
+        padding: 1rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full-width {
+        grid-column: span 1;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

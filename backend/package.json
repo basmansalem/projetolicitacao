@@ -1,0 +1,18 @@
+{
+  "name": "licitacoes-backend",
+  "version": "1.0.0",
+  "description": "Backend POC - Sistema de Controle de Licitações",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["licitacoes", "poc", "express"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  }
+}
