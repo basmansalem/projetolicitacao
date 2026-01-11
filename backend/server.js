@@ -6,6 +6,7 @@ const licitacoesRoutes = require('./routes/licitacoes');
 const prestadoresRoutes = require('./routes/prestadores');
 const itensRoutes = require('./routes/itens');
 const chamadasRoutes = require('./routes/chamadas');
+const ofertasRoutes = require('./routes/ofertas');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,6 +22,7 @@ app.use('/licitacoes', licitacoesRoutes);
 app.use('/prestadores', prestadoresRoutes);
 app.use('/itens', itensRoutes);
 app.use('/chamadas', chamadasRoutes);
+app.use('/ofertas', ofertasRoutes);
 
 // Health check
 app.get('/', (req, res) => {
@@ -58,4 +60,5 @@ app.listen(PORT, () => {
     console.log(`   - Prestadores: http://localhost:${PORT}/prestadores`);
     console.log(`   - Itens: http://localhost:${PORT}/itens`);
     console.log(`   - Chamadas: http://localhost:${PORT}/chamadas`);
+    console.log(`   - Ofertas: http://localhost:${PORT}/ofertas`);
 });

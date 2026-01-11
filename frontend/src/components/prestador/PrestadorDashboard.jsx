@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api, { CATEGORIAS } from '../../services/api';
 import './PrestadorDashboard.css';
+import OportunidadesList from './OportunidadesList';
 
 function PrestadorDashboard() {
     const [prestador, setPrestador] = useState(null);
@@ -11,6 +12,7 @@ function PrestadorDashboard() {
     const [error, setError] = useState(null);
     const [message, setMessage] = useState(null);
     const [filtroCategoria, setFiltroCategoria] = useState('');
+    const [oportunidadesCount, setOportunidadesCount] = useState(0);
 
     useEffect(() => {
         loadData();
@@ -108,22 +110,36 @@ function PrestadorDashboard() {
 
     return (
         <div className="prestador-dashboard">
-            <div className="dashboard-header">
-                <div className="header-info">
+            <header className="dashboard-header">
+                <div className="header-left">
                     <Link to="/" className="back-link">← Voltar</Link>
                     <h1>🏢 Área do Prestador</h1>
-                    <p>Gerencie seus itens e serviços</p>
+                    <p>Gerencie seus itens e visualize oportunidades</p>
                 </div>
 
-                <div className="prestador-selector">
-                    <label>Prestador:</label>
-                    <select value={prestador?.id || ''} onChange={handlePrestadorChange}>
-                        {prestadores.map(p => (
-                            <option key={p.id} value={p.id}>{p.nome}</option>
-                        ))}
-                    </select>
+                <div className="header-right">
+                    {/* Botão de Notificação */}
+                    <div className="notification-icon-container" title="Novas Oportunidades">
+                        <span className="notification-icon">🔔</span>
+                        {oportunidadesCount > 0 && (
+                            <span className="notification-badge">{oportunidadesCount}</span>
+                        )}
+                    </div>
+
+                    <div className="user-selector">
+                        <label>Prestador:</label>
+                        <select
+                            value={prestador?.id || ''}
+                            onChange={handlePrestadorChange}
+                            className="prestador-select"
+                        >
+                            {prestadores.map(p => (
+                                <option key={p.id} value={p.id}>{p.nome}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
-            </div>
+            </header>
 
             {message && (
                 <div className={`message message-${message.type}`}>
@@ -135,6 +151,14 @@ function PrestadorDashboard() {
                 <div className="message message-error">
                     Erro: {error}
                 </div>
+            )}
+
+            {/* Lista de Oportunidades (Novidade) */}
+            {prestador && (
+                <OportunidadesList
+                    prestadorId={prestador.id}
+                    onUpdateCount={setOportunidadesCount}
+                />
             )}
 
             {/* Estatísticas */}

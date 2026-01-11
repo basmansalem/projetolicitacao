@@ -1,417 +1,398 @@
+/* CSS da POC */
 .chamada-detail {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 20px;
 }
 
 .detail-header {
-    margin-bottom: 2rem;
+    margin-bottom: 30px;
 }
 
 .back-link {
     display: inline-block;
-    color: var(--text-secondary);
+    margin-bottom: 15px;
+    color: #666;
     text-decoration: none;
-    font-size: 0.875rem;
-    margin-bottom: 1rem;
+    font-size: 0.9rem;
 }
 
 .back-link:hover {
-    color: #6366f1;
+    color: #333;
+    text-decoration: underline;
 }
 
 .header-content {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.header-info {
-    flex: 1;
-}
-
-.chamada-categoria {
-    display: inline-block;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.1));
-    color: #6366f1;
-    padding: 0.35rem 1rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-bottom: 0.75rem;
 }
 
 .header-info h1 {
-    font-size: 1.75rem;
-    color: var(--text-primary);
-    margin: 0;
+    margin: 5px 0 0;
+    font-size: 2rem;
+    color: #333;
+}
+
+.chamada-categoria {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
 .status-select {
-    padding: 0.5rem 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.status-select.status-aberta {
-    border-color: #10b981;
-    color: #059669;
+.status-aberta {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border-color: #badbcc;
 }
 
-.status-select.status-analise {
-    border-color: #f59e0b;
-    color: #d97706;
+.status-analise {
+    background-color: #fff3cd;
+    color: #664d03;
+    border-color: #ffecb5;
 }
 
-.status-select.status-contratada {
-    border-color: #3b82f6;
-    color: #2563eb;
+.status-contratada {
+    background-color: #cfe2ff;
+    color: #084298;
+    border-color: #b6d4fe;
 }
 
-.status-select.status-encerrada {
-    border-color: #6b7280;
-    color: #4b5563;
+.status-encerrada {
+    background-color: #f8d7da;
+    color: #842029;
+    border-color: #f5c2c7;
 }
 
-/* Detail Sections */
 .detail-section {
-    background: var(--bg-secondary);
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow-md);
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .detail-section h2 {
-    font-size: 1.125rem;
-    color: var(--text-primary);
-    margin: 0 0 1.25rem 0;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+    margin: 0 0 20px 0;
+    font-size: 1.3rem;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .info-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
 }
 
 .info-card {
-    background: var(--bg-tertiary);
-    padding: 1rem;
-    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 .info-label {
-    display: block;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 5px;
     text-transform: uppercase;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
 }
 
 .info-value {
-    font-size: 1rem;
-    color: var(--text-primary);
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 500;
 }
 
-.info-value.highlight {
-    color: #6366f1;
-    font-weight: 600;
-    font-size: 1.25rem;
+.highlight {
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 1.2rem;
 }
 
-/* Possibilidades Section */
+/* Section Header Buttons */
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
 }
 
 .section-header h2 {
     margin: 0;
-    padding: 0;
-    border: none;
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
-.no-possibilidades {
-    text-align: center;
-    padding: 3rem 2rem;
-    background: var(--bg-tertiary);
-    border-radius: 12px;
-}
-
-.no-possibilidades .empty-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.no-possibilidades h3 {
-    color: var(--text-primary);
-    margin: 0 0 0.5rem 0;
-}
-
-.no-possibilidades p {
-    color: var(--text-secondary);
-    margin: 0;
-}
-
-/* Possibilidade Cards */
+/* Possibilidades */
 .possibilidades-list {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 15px;
 }
 
 .possibilidade-card {
-    background: var(--bg-primary);
-    border: 2px solid var(--border-color);
-    border-radius: 16px;
-    padding: 1.5rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
     position: relative;
-    transition: all 0.3s ease;
+    background-color: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .possibilidade-card:hover {
-    border-color: rgba(99, 102, 241, 0.3);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .possibilidade-rank {
     position: absolute;
-    top: -12px;
-    left: 20px;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    top: -10px;
+    left: -10px;
+    background-color: #333;
     color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
     font-size: 0.8rem;
-    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .possibilidade-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.25rem;
-    padding-top: 0.5rem;
+    margin-bottom: 15px;
 }
 
 .prestador-info {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 10px;
 }
 
 .prestador-icon {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    background-color: #f8f9fa;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .prestador-info h3 {
-    font-size: 1.125rem;
-    color: var(--text-primary);
     margin: 0;
+    font-size: 1rem;
+    color: #333;
 }
 
 .prestador-tipo {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-size: 0.8rem;
+    color: #666;
     text-transform: capitalize;
 }
 
 .score-badge {
+    padding: 5px 10px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.75rem 1.25rem;
-    border-radius: 12px;
-    background: var(--bg-tertiary);
+    min-width: 60px;
 }
 
-.score-badge.score-excellent {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.2));
+.score-excellent {
+    background-color: #d1e7dd;
+    color: #0f5132;
 }
 
-.score-badge.score-good {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.2));
+.score-good {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.score-normal {
+    background-color: #f8f9fa;
+    color: #666;
 }
 
 .score-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
+    font-weight: 800;
+    font-size: 1.1rem;
 }
 
 .score-label {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    color: var(--text-secondary);
+    opacity: 0.8;
 }
 
-/* Itens Compatíveis */
 .itens-compativeis {
-    margin-bottom: 1rem;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
 }
 
 .itens-compativeis h4 {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin: 0 0 0.75rem 0;
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    color: #555;
 }
 
 .itens-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 8px;
 }
 
 .item-compativel {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1rem;
-    background: var(--bg-secondary);
-    border-radius: 8px;
-    gap: 1rem;
+    padding: 5px 0;
+    border-bottom: 1px dashed #e0e0e0;
 }
 
-.item-info {
-    flex: 1;
-    min-width: 0;
+.item-compativel:last-child {
+    border-bottom: none;
 }
 
 .item-nome {
-    display: block;
     font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
 }
 
 .item-descricao {
     display: block;
     font-size: 0.8rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: #777;
 }
 
-.item-valor {
-    text-align: right;
-    white-space: nowrap;
-}
-
-.item-valor .valor {
-    display: block;
-    font-weight: 600;
-    color: #10b981;
-}
-
-.item-valor .unidade {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-}
-
-/* Footer */
 .possibilidade-footer {
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.valor-total {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-end;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
 }
 
 .valor-total .label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
+    font-size: 0.9rem;
+    color: #666;
+    margin-right: 10px;
 }
 
 .valor-total .valor {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #6366f1;
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
 }
 
-/* Error Container */
-.error-container {
-    text-align: center;
-    padding: 4rem 2rem;
+/* Ofertas */
+.ofertas-section {
+    border: 2px solid #e3f2fd;
 }
 
-.error-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
+.ofertas-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
 }
 
-/* Loading */
-.loading-container {
+.oferta-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    background: white;
+    cursor: default;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.oferta-card.melhor-oferta {
+    border: 2px solid #28a745;
+    background-color: #fafffb;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+    transform: translateY(-2px);
+}
+
+.badge-melhor-oferta {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 4px 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.oferta-header {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    gap: 1rem;
+    margin-bottom: 10px;
 }
 
-.loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid var(--bg-tertiary);
-    border-top-color: #6366f1;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+.oferta-valor {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #333;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+.oferta-descricao {
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    padding: 8px;
+    border-radius: 4px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .chamada-detail {
-        padding: 1rem;
-    }
+.oferta-footer {
+    margin-top: 10px;
+    text-align: right;
+}
 
-    .header-content {
-        flex-direction: column;
-    }
+.oferta-data {
+    font-size: 0.75rem;
+    color: #999;
+}
 
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
+.no-ofertas,
+.no-possibilidades {
+    text-align: center;
+    padding: 30px;
+    color: #666;
+}
 
-    .possibilidade-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .score-badge {
-        align-self: flex-end;
-    }
-
-    .item-compativel {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .item-valor {
-        text-align: left;
-        margin-top: 0.5rem;
-    }
+.empty-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 10px;
+    opacity: 0.5;
 }

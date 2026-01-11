@@ -1,5 +1,6 @@
 const itensData = require('../data/itens');
 const prestadoresData = require('../data/prestadores');
+const possibilidadesData = require('../data/possibilidades');
 
 // Validação
 const validateItem = (data, isUpdate = false) => {
@@ -122,6 +123,9 @@ exports.create = (req, res) => {
 
         const newItem = itensData.create(req.body);
 
+        // Atualizar possibilidades (matches) dinamicamente
+        possibilidadesData.atualizarPorItem(newItem);
+
         res.status(201).json({
             success: true,
             message: 'Item criado com sucesso',
@@ -148,6 +152,9 @@ exports.update = (req, res) => {
         }
 
         const updated = itensData.update(req.params.id, req.body);
+
+        // Atualizar possibilidades (matches) dinamicamente
+        possibilidadesData.atualizarPorItem(updated);
 
         res.json({
             success: true,

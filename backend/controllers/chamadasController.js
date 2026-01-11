@@ -1,5 +1,6 @@
 const chamadasData = require('../data/chamadas');
 const possibilidadesData = require('../data/possibilidades');
+const ofertasData = require('../data/ofertas');
 const itensData = require('../data/itens');
 
 // Validação
@@ -71,16 +72,19 @@ exports.getById = (req, res) => {
         }
 
         const possibilidades = possibilidadesData.getByChamada(chamada.id);
+        const ofertas = ofertasData.getByChamada(chamada.id);
 
         res.json({
             success: true,
             data: {
                 ...chamada,
                 quantidadePossibilidades: possibilidades.length,
-                possibilidades
+                possibilidades,
+                ofertas
             }
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ success: false, error: 'Erro ao buscar chamada' });
     }
 };
@@ -196,7 +200,27 @@ exports.remove = (req, res) => {
     }
 };
 
-// POST /chamadas/:id/regenerar-possibilidades
+// GET /chamadas/:id/ofertas
+exports.getOfertas = (req, res) => {
+    try {
+        const chamada = chamadasData.getById(req.params.id);
+
+        if (!chamada) {
+            return res.status(404).json({ success: false, error: 'Chamada não encontrada' });
+        }
+
+        const ofertas = ofertasData.getByChamada(chamada.id);
+
+        res.json({
+            success: true,
+            count: ofertas.length,
+            data: ofertas
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Erro ao buscar ofertas da chamada' });
+    }
+};
+
 exports.regenerarPossibilidades = (req, res) => {
     try {
         const chamada = chamadasData.getById(req.params.id);

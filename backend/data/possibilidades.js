@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const itensData = require('./itens');
 const prestadoresData = require('./prestadores');
+const chamadasData = require('./chamadas');
 
 // Dados em memória para possibilidades
 let possibilidades = [];
@@ -98,11 +99,28 @@ const removeByChamada = (chamadaId) => {
     possibilidades = possibilidades.filter(p => p.chamadaId !== chamadaId);
 };
 
+// Atualizar possibilidades quando um item é criado ou alterado
+const atualizarPorItem = (item) => {
+    // Buscar chamadas da mesma categoria e "Aberta" ou "Em análise" (que aceitam propostas)
+    const allChamadas = chamadasData.getAll();
+    const chamadasRelevantes = allChamadas.filter(c =>
+        c.categoria === item.categoria &&
+        (c.status === 'Aberta' || c.status === 'Em análise')
+    );
+
+    console.log(`[Possibilidades] Item atualizado: ${item.nome}. Atualizando ${chamadasRelevantes.length} chamadas.`);
+
+    chamadasRelevantes.forEach(chamada => {
+        gerarPossibilidades(chamada);
+    });
+};
+
 module.exports = {
     gerarPossibilidades,
     getByChamada,
     getById,
     getAll,
     countByChamada,
-    removeByChamada
+    removeByChamada,
+    atualizarPorItem
 };

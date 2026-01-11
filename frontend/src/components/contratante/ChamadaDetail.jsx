@@ -13,18 +13,37 @@ function ChamadaDetail() {
 
     useEffect(() => {
         loadChamada();
-    }, [id]);
 
-    const loadChamada = async () => {
+        // Polling para atualização dinâmica (a cada 5 segundos)
+        const interval = setInterval(() => {
+            if (!saving) { // Evita recarregar se estiver salvando algo
+                loadChamada(true); // true = silent load (sem loading spinner)
+            }
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [id, saving]);
+
+    const loadChamada = async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             setError(null);
-            const response = await api.chamadas.getById(id);
-            setChamada(response.data);
+
+            // Buscar chamada e ofertas em paralelo para garantir dados atualizados
+            const [chamadaRes, ofertasRes] = await Promise.all([
+                api.chamadas.getById(id),
+                api.chamadas.getOfertas(id)
+            ]);
+
+            // Combinar dados
+            setChamada({
+                ...chamadaRes.data,
+                ofertas: ofertasRes.data // Forçar uso das ofertas do endpoint específico
+            });
         } catch (err) {
-            setError(err.message);
+            if (!silent) setError(err.message);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
@@ -87,6 +106,12 @@ function ChamadaDetail() {
         return 'score-normal';
     };
 
+    const getMelhorOfertaId = () => {
+        if (!chamada?.ofertas || chamada.ofertas.length === 0) return null;
+        // Ofertas já vêm ordenadas por valor do backend
+        return chamada.ofertas[0].id;
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
@@ -108,6 +133,8 @@ function ChamadaDetail() {
     }
 
     if (!chamada) return null;
+
+    const melhorOfertaId = getMelhorOfertaId();
 
     return (
         <div className="chamada-detail">
@@ -162,6 +189,57 @@ function ChamadaDetail() {
                 </div>
             </div>
 
+            {/* Ofertas Recebidas */}
+            <div className="detail-section ofertas-section">
+                <div className="section-header">
+                    <h2>💰 Ofertas Recebidas</h2>
+                    <span className="badge-count">
+                        {chamada.ofertas?.length || 0}
+                    </span>
+                </div>
+
+                {!chamada.ofertas || chamada.ofertas.length === 0 ? (
+                    <div className="no-ofertas">
+                        <span className="empty-icon">💸</span>
+                        <h3>Nenhuma oferta recebida</h3>
+                        <p>Aguarde as ofertas dos prestadores notificados.</p>
+                    </div>
+                ) : (
+                    <div className="ofertas-list">
+                        {chamada.ofertas.map((oferta, index) => (
+                            <div
+                                key={oferta.id}
+                                className={`oferta-card ${oferta.id === melhorOfertaId ? 'melhor-oferta' : ''}`}
+                            >
+                                {oferta.id === melhorOfertaId && (
+                                    <div className="badge-melhor-oferta">🏆 Melhor Oferta</div>
+                                )}
+
+                                <div className="oferta-header">
+                                    <div className="prestador-info">
+                                        <span className="prestador-icon">👤</span>
+                                        <h3>{oferta.prestadorNome}</h3>
+                                    </div>
+                                    <div className="oferta-valor">
+                                        {formatCurrency(oferta.valor)}
+                                    </div>
+                                </div>
+
+                                {oferta.descricao && (
+                                    <p className="oferta-descricao">"{oferta.descricao}"</p>
+                                )}
+
+                                <div className="oferta-footer">
+                                    <span className="oferta-data">
+                                        Recebida em: {new Date(oferta.createdAt).toLocaleDateString()} às {new Date(oferta.createdAt).toLocaleTimeString()}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             {/* Possibilidades */}
             <div className="detail-section possibilidades-section">
                 <div className="section-header">
@@ -200,24 +278,6 @@ function ChamadaDetail() {
                                     <div className={`score-badge ${getScoreClass(poss.scoreCompatibilidade)}`}>
                                         <span className="score-value">{poss.scoreCompatibilidade}</span>
                                         <span className="score-label">Score</span>
-                                    </div>
-                                </div>
-
-                                <div className="itens-compativeis">
-                                    <h4>Itens Compatíveis ({poss.itensCompativeis.length})</h4>
-                                    <div className="itens-list">
-                                        {poss.itensCompativeis.map(item => (
-                                            <div key={item.id} className="item-compativel">
-                                                <div className="item-info">
-                                                    <span className="item-nome">{item.nome}</span>
-                                                    <span className="item-descricao">{item.descricao}</span>
-                                                </div>
-                                                <div className="item-valor">
-                                                    <span className="valor">{formatCurrency(item.valorReferencia)}</span>
-                                                    <span className="unidade">/ {item.unidade}</span>
-                                                </div>
-                                            </div>
-                                        ))}
                                     </div>
                                 </div>
 

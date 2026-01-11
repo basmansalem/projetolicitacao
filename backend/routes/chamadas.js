@@ -14,6 +14,9 @@ router.get('/:id', controller.getById);
 // GET /chamadas/:id/possibilidades - Listar possibilidades
 router.get('/:id/possibilidades', controller.getPossibilidades);
 
+// GET /chamadas/:id/ofertas - Listar ofertas
+router.get('/:id/ofertas', controller.getOfertas);
+
 // POST /chamadas/:id/regenerar-possibilidades - Regenerar possibilidades
 router.post('/:id/regenerar-possibilidades', controller.regenerarPossibilidades);
 

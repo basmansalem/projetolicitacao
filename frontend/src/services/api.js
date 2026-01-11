@@ -212,6 +212,45 @@ const api = {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error);
             return data;
+        },
+        async getOfertas(id) {
+            const response = await fetch(`${API_BASE_URL}/chamadas/${id}/ofertas`);
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Erro ao buscar ofertas');
+            return data;
+        }
+    },
+
+    // =====================
+    // OFERTAS
+    // =====================
+    ofertas: {
+        async getAll(filters = {}) {
+            const params = new URLSearchParams();
+            if (filters.chamadaId) params.append('chamadaId', filters.chamadaId);
+            if (filters.prestadorId) params.append('prestadorId', filters.prestadorId);
+
+            const url = `${API_BASE_URL}/ofertas${params.toString() ? '?' + params.toString() : ''}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Erro ao buscar ofertas');
+            return data;
+        },
+        async getById(id) {
+            const response = await fetch(`${API_BASE_URL}/ofertas/${id}`);
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Oferta não encontrada');
+            return data;
+        },
+        async create(oferta) {
+            const response = await fetch(`${API_BASE_URL}/ofertas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(oferta)
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.errors?.join(', ') || data.error);
+            return data;
         }
     }
 };
@@ -254,4 +293,3 @@ export const MODALIDADES = [
     'Dispensa de Licitação',
     'Inexigibilidade'
 ];
-

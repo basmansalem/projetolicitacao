@@ -1,0 +1,152 @@
+.oportunidades-list {
+    margin-bottom: 40px;
+}
+
+.oportunidades-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.oportunidade-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.oportunidade-card.ja-ofertada {
+    background-color: #f8f9fa;
+    border: 1px solid #eee;
+}
+
+.oportunidade-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.status-ofertada-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: #28a745;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 20px;
+    z-index: 1;
+}
+
+.oportunidade-info {
+    margin-bottom: 20px;
+}
+
+.oportunidade-info h3 {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    color: #333;
+    line-height: 1.4;
+}
+
+.info-badges {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.categoria-badge {
+    display: inline-block;
+    background-color: #e9ecef;
+    color: #495057;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.deadline-badge {
+    display: inline-block;
+    background-color: #fff3cd;
+    color: #856404;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    border: 1px solid #ffeeba;
+}
+
+.oportunidade-descricao {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.match-details {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.match-label {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.progress-bar {
+    flex-grow: 1;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffc107, #28a745);
+    border-radius: 4px;
+}
+
+.score-text {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #28a745;
+    min-width: 35px;
+    text-align: right;
+}
+
+.oportunidade-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-oferta {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+.btn-oferta:hover {
+    background-color: #0056b3;
+}
