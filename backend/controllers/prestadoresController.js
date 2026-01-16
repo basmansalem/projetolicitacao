@@ -15,6 +15,21 @@ const validatePrestador = (data, isUpdate = false) => {
         errors.push(`Tipo inválido. Valores permitidos: ${prestadoresData.TIPOS_PRESTADOR.join(', ')}`);
     }
 
+    if (!isUpdate || data.cnpj !== undefined) {
+        if (data.tipo === 'empresa' && (!data.cnpj || data.cnpj.trim() === '')) {
+            // Validar apenas se for empresa e estiver sendo enviado
+            // Nota: Para POC não vamos validar o formato estrito do CNPJ
+            // errors.push('CNPJ é obrigatório para empresas');
+        }
+    }
+
+    if (!isUpdate || data.categoria !== undefined) {
+        if (data.categoria && !itensData.CATEGORIAS.includes(data.categoria)) {
+            // Validar categoria se fornecida
+            errors.push(`Categoria inválida. Valores permitidos: ${itensData.CATEGORIAS.join(', ')}`);
+        }
+    }
+
     return errors;
 };
 

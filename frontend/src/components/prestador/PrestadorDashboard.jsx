@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api, { CATEGORIAS } from '../../services/api';
 import './PrestadorDashboard.css';
 import OportunidadesList from './OportunidadesList';
+import PrestadorFormModal from './PrestadorFormModal';
 
 function PrestadorDashboard() {
     const [prestador, setPrestador] = useState(null);
@@ -13,6 +14,7 @@ function PrestadorDashboard() {
     const [message, setMessage] = useState(null);
     const [filtroCategoria, setFiltroCategoria] = useState('');
     const [oportunidadesCount, setOportunidadesCount] = useState(0);
+    const [showNewPrestadorModal, setShowNewPrestadorModal] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -55,6 +57,14 @@ function PrestadorDashboard() {
                 setError(err.message);
             }
         }
+    };
+
+    const handleNewPrestadorSuccess = (newPrestador) => {
+        setPrestadores(prev => [...prev, newPrestador]);
+        setPrestador(newPrestador);
+        setItens([]); // Novo prestador não tem itens
+        setMessage({ type: 'success', text: `Prestador "${newPrestador.nome}" cadastrado com sucesso!` });
+        setTimeout(() => setMessage(null), 3000);
     };
 
     const handleToggleAtivo = async (item) => {
@@ -137,9 +147,23 @@ function PrestadorDashboard() {
                                 <option key={p.id} value={p.id}>{p.nome}</option>
                             ))}
                         </select>
+                        <button
+                            className="btn-add-mini"
+                            onClick={() => setShowNewPrestadorModal(true)}
+                            title="Cadastrar Novo Prestador"
+                        >
+                            +
+                        </button>
                     </div>
                 </div>
             </header>
+
+            {showNewPrestadorModal && (
+                <PrestadorFormModal
+                    onClose={() => setShowNewPrestadorModal(false)}
+                    onSuccess={handleNewPrestadorSuccess}
+                />
+            )}
 
             {message && (
                 <div className={`message message-${message.type}`}>

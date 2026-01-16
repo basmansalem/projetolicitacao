@@ -88,6 +88,26 @@
     min-width: 200px;
 }
 
+.btn-add-mini {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding-bottom: 3px;
+}
+
+.btn-add-mini:hover {
+    background-color: #218838;
+}
+
 /* Stats Grid */
 .stats-grid {
     display: grid;
@@ -358,4 +378,24 @@
 .message-error {
     background-color: #f8d7da;
     color: #842029;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }

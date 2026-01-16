@@ -38,6 +38,8 @@ const create = (data) => {
         id: uuidv4(),
         nome: data.nome,
         tipo: data.tipo || 'empresa',
+        cnpj: data.cnpj || '',
+        categoria: data.categoria || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };

@@ -61,6 +61,10 @@ function ChamadaForm() {
 
             const response = await api.chamadas.create(dataToSend);
 
+            if (response.warning) {
+                alert(response.warning);
+            }
+
             // Navegar para detalhes da chamada criada
             navigate(`/contratante/chamada/${response.data.id}`);
         } catch (err) {

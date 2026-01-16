@@ -125,9 +125,17 @@ exports.create = (req, res) => {
         // Gerar possibilidades automaticamente
         const possibilidades = possibilidadesData.gerarPossibilidades(newChamada);
 
+        let message = `Chamada criada com sucesso. ${possibilidades.length} possibilidade(s) encontrada(s).`;
+        let warning = null;
+
+        if (possibilidades.length < 3) {
+            warning = `Atenção: Sua chamada atingiu apenas ${possibilidades.length} prestador(es). Recomendamos no mínimo 3 para maior competitividade.`;
+        }
+
         res.status(201).json({
             success: true,
-            message: `Chamada criada com sucesso. ${possibilidades.length} possibilidade(s) encontrada(s).`,
+            message: message,
+            warning: warning,
             data: {
                 ...newChamada,
                 quantidadePossibilidades: possibilidades.length,
