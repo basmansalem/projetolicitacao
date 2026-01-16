@@ -44,7 +44,7 @@ const validateItem = (data, isUpdate = false) => {
 };
 
 // GET /itens
-exports.getAll = (req, res) => {
+exports.getAll = async (req, res) => {
     try {
         const filters = {
             prestadorId: req.query.prestadorId,
@@ -52,16 +52,16 @@ exports.getAll = (req, res) => {
             ativo: req.query.ativo === 'true' ? true : (req.query.ativo === 'false' ? false : undefined)
         };
 
-        const itens = itensData.getAll(filters);
+        const itens = await itensData.getAll(filters);
 
-        // Adicionar informações do prestador
-        const itensComPrestador = itens.map(item => {
-            const prestador = prestadoresData.getById(item.prestadorId);
+        // Adicionar informações do prestador (Need await due to DB)
+        const itensComPrestador = await Promise.all(itens.map(async item => {
+            const prestador = await prestadoresData.getById(item.prestadorId);
             return {
                 ...item,
                 prestadorNome: prestador ? prestador.nome : 'Desconhecido'
             };
-        });
+        }));
 
         res.json({
             success: true,
@@ -90,15 +90,15 @@ exports.getUnidades = (req, res) => {
 };
 
 // GET /itens/:id
-exports.getById = (req, res) => {
+exports.getById = async (req, res) => {
     try {
-        const item = itensData.getById(req.params.id);
+        const item = await itensData.getById(req.params.id);
 
         if (!item) {
             return res.status(404).json({ success: false, error: 'Item não encontrado' });
         }
 
-        const prestador = prestadoresData.getById(item.prestadorId);
+        const prestador = await prestadoresData.getById(item.prestadorId);
 
         res.json({
             success: true,
@@ -113,7 +113,7 @@ exports.getById = (req, res) => {
 };
 
 // POST /itens
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     try {
         const errors = validateItem(req.body);
 
@@ -121,10 +121,10 @@ exports.create = (req, res) => {
             return res.status(400).json({ success: false, errors });
         }
 
-        const newItem = itensData.create(req.body);
+        const newItem = await itensData.create(req.body);
 
         // Atualizar possibilidades (matches) dinamicamente
-        possibilidadesData.atualizarPorItem(newItem);
+        await possibilidadesData.atualizarPorItem(newItem);
 
         res.status(201).json({
             success: true,
@@ -132,14 +132,15 @@ exports.create = (req, res) => {
             data: newItem
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ success: false, error: 'Erro ao criar item' });
     }
 };
 
 // PUT /itens/:id
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
     try {
-        const existing = itensData.getById(req.params.id);
+        const existing = await itensData.getById(req.params.id);
 
         if (!existing) {
             return res.status(404).json({ success: false, error: 'Item não encontrado' });
@@ -151,10 +152,10 @@ exports.update = (req, res) => {
             return res.status(400).json({ success: false, errors });
         }
 
-        const updated = itensData.update(req.params.id, req.body);
+        const updated = await itensData.update(req.params.id, req.body);
 
         // Atualizar possibilidades (matches) dinamicamente
-        possibilidadesData.atualizarPorItem(updated);
+        await possibilidadesData.atualizarPorItem(updated);
 
         res.json({
             success: true,
@@ -167,15 +168,15 @@ exports.update = (req, res) => {
 };
 
 // DELETE /itens/:id
-exports.remove = (req, res) => {
+exports.remove = async (req, res) => {
     try {
-        const existing = itensData.getById(req.params.id);
+        const existing = await itensData.getById(req.params.id);
 
         if (!existing) {
             return res.status(404).json({ success: false, error: 'Item não encontrado' });
         }
 
-        itensData.remove(req.params.id);
+        await itensData.remove(req.params.id);
 
         res.json({
             success: true,

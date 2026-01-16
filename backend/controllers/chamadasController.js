@@ -37,20 +37,20 @@ const validateChamada = (data, isUpdate = false) => {
 };
 
 // GET /chamadas
-exports.getAll = (req, res) => {
+exports.getAll = async (req, res) => {
     try {
         const filters = {
             categoria: req.query.categoria,
             status: req.query.status
         };
 
-        const chamadas = chamadasData.getAll(filters);
+        const chamadas = await chamadasData.getAll(filters);
 
         // Adicionar contagem de possibilidades
-        const chamadasComPossibilidades = chamadas.map(c => ({
+        const chamadasComPossibilidades = await Promise.all(chamadas.map(async c => ({
             ...c,
-            quantidadePossibilidades: possibilidadesData.countByChamada(c.id)
-        }));
+            quantidadePossibilidades: await possibilidadesData.countByChamada(c.id)
+        })));
 
         res.json({
             success: true,
@@ -58,21 +58,22 @@ exports.getAll = (req, res) => {
             data: chamadasComPossibilidades
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ success: false, error: 'Erro ao buscar chamadas' });
     }
 };
 
 // GET /chamadas/:id
-exports.getById = (req, res) => {
+exports.getById = async (req, res) => {
     try {
-        const chamada = chamadasData.getById(req.params.id);
+        const chamada = await chamadasData.getById(req.params.id);
 
         if (!chamada) {
             return res.status(404).json({ success: false, error: 'Chamada não encontrada' });
         }
 
-        const possibilidades = possibilidadesData.getByChamada(chamada.id);
-        const ofertas = ofertasData.getByChamada(chamada.id);
+        const possibilidades = await possibilidadesData.getByChamada(chamada.id);
+        const ofertas = await ofertasData.getByChamada(chamada.id);
 
         res.json({
             success: true,
@@ -90,15 +91,15 @@ exports.getById = (req, res) => {
 };
 
 // GET /chamadas/:id/possibilidades
-exports.getPossibilidades = (req, res) => {
+exports.getPossibilidades = async (req, res) => {
     try {
-        const chamada = chamadasData.getById(req.params.id);
+        const chamada = await chamadasData.getById(req.params.id);
 
         if (!chamada) {
             return res.status(404).json({ success: false, error: 'Chamada não encontrada' });
         }
 
-        const possibilidades = possibilidadesData.getByChamada(chamada.id);
+        const possibilidades = await possibilidadesData.getByChamada(chamada.id);
 
         res.json({
             success: true,
@@ -106,12 +107,13 @@ exports.getPossibilidades = (req, res) => {
             data: possibilidades
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ success: false, error: 'Erro ao buscar possibilidades' });
     }
 };
 
 // POST /chamadas
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     try {
         const errors = validateChamada(req.body);
 
@@ -120,10 +122,10 @@ exports.create = (req, res) => {
         }
 
         // Criar a chamada
-        const newChamada = chamadasData.create(req.body);
+        const newChamada = await chamadasData.create(req.body);
 
-        // Gerar possibilidades automaticamente
-        const possibilidades = possibilidadesData.gerarPossibilidades(newChamada);
+        // Gerar possibilidades automaticamente (on-fly calculation mostly, but here we just fetching)
+        const possibilidades = await possibilidadesData.getByChamada(newChamada.id);
 
         let message = `Chamada criada com sucesso. ${possibilidades.length} possibilidade(s) encontrada(s).`;
         let warning = null;
@@ -149,9 +151,9 @@ exports.create = (req, res) => {
 };
 
 // PUT /chamadas/:id
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
     try {
-        const existing = chamadasData.getById(req.params.id);
+        const existing = await chamadasData.getById(req.params.id);
 
         if (!existing) {
             return res.status(404).json({ success: false, error: 'Chamada não encontrada' });
@@ -163,14 +165,11 @@ exports.update = (req, res) => {
             return res.status(400).json({ success: false, errors });
         }
 
-        const updated = chamadasData.update(req.params.id, req.body);
+        const updated = await chamadasData.update(req.params.id, req.body);
 
-        // Se categoria ou valor máximo mudou, regenerar possibilidades
-        if (req.body.categoria !== undefined || req.body.valorMaximo !== undefined) {
-            possibilidadesData.gerarPossibilidades(updated);
-        }
-
-        const possibilidades = possibilidadesData.getByChamada(updated.id);
+        // Se categoria ou valor máximo mudou, regenerar possibilidades (logic is dynamic now)
+        // Just fetch them
+        const possibilidades = await possibilidadesData.getByChamada(updated.id);
 
         res.json({
             success: true,
@@ -181,23 +180,24 @@ exports.update = (req, res) => {
             }
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ success: false, error: 'Erro ao atualizar chamada' });
     }
 };
 
 // DELETE /chamadas/:id
-exports.remove = (req, res) => {
+exports.remove = async (req, res) => {
     try {
-        const existing = chamadasData.getById(req.params.id);
+        const existing = await chamadasData.getById(req.params.id);
 
         if (!existing) {
             return res.status(404).json({ success: false, error: 'Chamada não encontrada' });
         }
 
-        // Remover possibilidades associadas
-        possibilidadesData.removeByChamada(req.params.id);
+        // Remover possibilidades associadas (dynamic, no-op)
+        await possibilidadesData.removeByChamada(req.params.id);
 
-        chamadasData.remove(req.params.id);
+        await chamadasData.remove(req.params.id);
 
         res.json({
             success: true,
@@ -209,15 +209,15 @@ exports.remove = (req, res) => {
 };
 
 // GET /chamadas/:id/ofertas
-exports.getOfertas = (req, res) => {
+exports.getOfertas = async (req, res) => {
     try {
-        const chamada = chamadasData.getById(req.params.id);
+        const chamada = await chamadasData.getById(req.params.id);
 
         if (!chamada) {
             return res.status(404).json({ success: false, error: 'Chamada não encontrada' });
         }
 
-        const ofertas = ofertasData.getByChamada(chamada.id);
+        const ofertas = await ofertasData.getByChamada(chamada.id);
 
         res.json({
             success: true,
@@ -229,15 +229,15 @@ exports.getOfertas = (req, res) => {
     }
 };
 
-exports.regenerarPossibilidades = (req, res) => {
+exports.regenerarPossibilidades = async (req, res) => {
     try {
-        const chamada = chamadasData.getById(req.params.id);
+        const chamada = await chamadasData.getById(req.params.id);
 
         if (!chamada) {
             return res.status(404).json({ success: false, error: 'Chamada não encontrada' });
         }
 
-        const possibilidades = possibilidadesData.gerarPossibilidades(chamada);
+        const possibilidades = await possibilidadesData.gerarPossibilidades(chamada);
 
         res.json({
             success: true,

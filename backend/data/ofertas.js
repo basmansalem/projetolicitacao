@@ -1,55 +1,58 @@
 const { v4: uuidv4 } = require('uuid');
+const db = require('../db/database');
 
-// Dados em memória para ofertas
-let ofertas = [];
-
-// Funções de acesso aos dados
-const getAll = (filters = {}) => {
-    let result = [...ofertas];
+const getAll = async (filters = {}) => {
+    let sql = "SELECT * FROM ofertas WHERE 1=1";
+    const params = [];
 
     if (filters.chamadaId) {
-        result = result.filter(o => o.chamadaId === filters.chamadaId);
+        sql += " AND chamadaId = ?";
+        params.push(filters.chamadaId);
     }
     if (filters.prestadorId) {
-        result = result.filter(o => o.prestadorId === filters.prestadorId);
+        sql += " AND prestadorId = ?";
+        params.push(filters.prestadorId);
     }
-
-    return result;
+    sql += " ORDER BY valor ASC"; // Default sort
+    return await db.query(sql, params);
 };
 
-const getById = (id) => ofertas.find(o => o.id === id);
-
-const getByChamada = (chamadaId) => {
-    return ofertas
-        .filter(o => o.chamadaId === chamadaId)
-        .sort((a, b) => a.valor - b.valor); // Menor valor primeiro
+const getById = async (id) => {
+    return await db.get("SELECT * FROM ofertas WHERE id = ?", [id]);
 };
 
-const create = (data) => {
+const getByChamada = async (chamadaId) => {
+    return await db.query("SELECT * FROM ofertas WHERE chamadaId = ? ORDER BY valor ASC", [chamadaId]);
+};
+
+const create = async (data) => {
     const newOferta = {
         id: uuidv4(),
         chamadaId: data.chamadaId,
         prestadorId: data.prestadorId,
-        prestadorNome: data.prestadorNome, // Desnormalizado para facilitar
+        prestadorNome: data.prestadorNome,
         valor: typeof data.valor === 'string' ? parseFloat(data.valor) : data.valor,
         descricao: data.descricao || '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
-    ofertas.push(newOferta);
+
+    await db.run(
+        `INSERT INTO ofertas (id, chamadaId, prestadorId, prestadorNome, valor, descricao, createdAt, updatedAt) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [newOferta.id, newOferta.chamadaId, newOferta.prestadorId, newOferta.prestadorNome, newOferta.valor, newOferta.descricao, newOferta.createdAt, newOferta.updatedAt]
+    );
+
     return newOferta;
 };
 
-const remove = (id) => {
-    const index = ofertas.findIndex(o => o.id === id);
-    if (index === -1) return false;
-
-    ofertas.splice(index, 1);
+const remove = async (id) => {
+    await db.run("DELETE FROM ofertas WHERE id = ?", [id]);
     return true;
 };
 
-const removeByChamada = (chamadaId) => {
-    ofertas = ofertas.filter(o => o.chamadaId !== chamadaId);
+const removeByChamada = async (chamadaId) => {
+    await db.run("DELETE FROM ofertas WHERE chamadaId = ?", [chamadaId]);
 };
 
 module.exports = {

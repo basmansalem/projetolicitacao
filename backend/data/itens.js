@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const prestadoresData = require('./prestadores');
+const db = require('../db/database');
 
 // Categorias de itens (enum fixo)
 const CATEGORIAS = [
@@ -15,174 +15,44 @@ const CATEGORIAS = [
 // Unidades de medida
 const UNIDADES = ['unidade', 'hora', 'diária', 'mensal', 'anual', 'projeto'];
 
-// Dados em memória para itens
-let itens = [];
-
-// Inicializar com dados de exemplo
-const initializeItens = () => {
-    const prestadores = prestadoresData.getAll();
-
-    if (prestadores.length >= 3 && itens.length === 0) {
-        const techPrestador = prestadores[0];
-        const construcaoPrestador = prestadores[1];
-        const consultorPrestador = prestadores[2];
-
-        itens = [
-            // Itens de Tecnologia
-            {
-                id: uuidv4(),
-                prestadorId: techPrestador.id,
-                categoria: 'Tecnologia',
-                nome: 'Desenvolvimento de Sistema Web',
-                descricao: 'Desenvolvimento completo de sistemas web responsivos com tecnologias modernas',
-                valorReferencia: 85000,
-                unidade: 'projeto',
-                ativo: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            },
-            {
-                id: uuidv4(),
-                prestadorId: techPrestador.id,
-                categoria: 'Tecnologia',
-                nome: 'Suporte Técnico',
-                descricao: 'Suporte técnico especializado para infraestrutura de TI',
-                valorReferencia: 8000,
-                unidade: 'mensal',
-                ativo: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            },
-            {
-                id: uuidv4(),
-                prestadorId: techPrestador.id,
-                categoria: 'Tecnologia',
-                nome: 'Hospedagem de Servidores',
-                descricao: 'Serviço de hospedagem em nuvem com alta disponibilidade',
-                valorReferencia: 3500,
-                unidade: 'mensal',
-                ativo: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            },
-
-            // Itens de Construção Civil
-            {
-                id: uuidv4(),
-                prestadorId: construcaoPrestador.id,
-                categoria: 'Construção Civil',
-                nome: 'Reforma Predial',
-                descricao: 'Serviços completos de reforma predial incluindo acabamentos',
-                valorReferencia: 250000,
-                unidade: 'projeto',
-                ativo: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            },
-            {
-                id: uuidv4(),
-                prestadorId: construcaoPrestador.id,
-                categoria: 'Construção Civil',
-                nome: 'Pintura',
-                descricao: 'Serviço de pintura interna e externa',
-                valorReferencia: 45000,
-                unidade: 'projeto',
-                ativo: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            },
-            {
-                id: uuidv4(),
-                prestadorId: construcaoPrestador.id,
-                categoria: 'Construção Civil',
-                nome: 'Manutenção Elétrica',
-                descricao: 'Manutenção preventiva e corretiva de instalações elétricas',
-                valorReferencia: 15000,
-                unidade: 'mensal',
-                ativo: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            },
-
-            // Itens de Educação (Consultor)
-            {
-                id: uuidv4(),
-                prestadorId: consultorPrestador.id,
-                categoria: 'Educação',
-                nome: 'Cursos de Capacitação',
-                descricao: 'Cursos de capacitação profissional em diversas áreas',
-                valorReferencia: 12000,
-                unidade: 'projeto',
-                ativo: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            },
-            {
-                id: uuidv4(),
-                prestadorId: consultorPrestador.id,
-                categoria: 'Educação',
-                nome: 'Treinamentos Corporativos',
-                descricao: 'Treinamentos personalizados para equipes corporativas',
-                valorReferencia: 8500,
-                unidade: 'projeto',
-                ativo: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            },
-            {
-                id: uuidv4(),
-                prestadorId: consultorPrestador.id,
-                categoria: 'Tecnologia',
-                nome: 'Consultoria em TI',
-                descricao: 'Consultoria especializada em arquitetura de sistemas',
-                valorReferencia: 500,
-                unidade: 'hora',
-                ativo: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            }
-        ];
-    }
-};
-
-// Funções de acesso aos dados
-const getAll = (filters = {}) => {
-    initializeItens();
-    let result = [...itens];
+const getAll = async (filters = {}) => {
+    let sql = "SELECT * FROM itens WHERE 1=1";
+    const params = [];
 
     if (filters.prestadorId) {
-        result = result.filter(i => i.prestadorId === filters.prestadorId);
+        sql += " AND prestadorId = ?";
+        params.push(filters.prestadorId);
     }
     if (filters.categoria) {
-        result = result.filter(i => i.categoria === filters.categoria);
+        sql += " AND categoria = ?";
+        params.push(filters.categoria);
     }
     if (filters.ativo !== undefined) {
-        result = result.filter(i => i.ativo === filters.ativo);
+        sql += " AND ativo = ?";
+        params.push(filters.ativo ? 1 : 0);
     }
 
-    return result;
+    return await db.query(sql, params);
 };
 
-const getById = (id) => {
-    initializeItens();
-    return itens.find(i => i.id === id);
+const getById = async (id) => {
+    return await db.get("SELECT * FROM itens WHERE id = ?", [id]);
 };
 
-const getByPrestador = (prestadorId) => {
-    initializeItens();
-    return itens.filter(i => i.prestadorId === prestadorId);
+const getByPrestador = async (prestadorId) => {
+    return await db.query("SELECT * FROM itens WHERE prestadorId = ?", [prestadorId]);
 };
 
-const getByCategoria = (categoria, apenasAtivos = true) => {
-    initializeItens();
-    return itens.filter(i =>
-        i.categoria === categoria &&
-        (!apenasAtivos || i.ativo)
-    );
+const getByCategoria = async (categoria, apenasAtivos = true) => {
+    let sql = "SELECT * FROM itens WHERE categoria = ?";
+    const params = [categoria];
+    if (apenasAtivos) {
+        sql += " AND ativo = 1";
+    }
+    return await db.query(sql, params);
 };
 
-const create = (data) => {
-    initializeItens();
+const create = async (data) => {
     const newItem = {
         id: uuidv4(),
         prestadorId: data.prestadorId,
@@ -191,36 +61,43 @@ const create = (data) => {
         descricao: data.descricao || '',
         valorReferencia: data.valorReferencia,
         unidade: data.unidade || 'unidade',
-        ativo: data.ativo !== undefined ? data.ativo : true,
+        ativo: data.ativo !== undefined ? data.ativo : 1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
-    itens.push(newItem);
+
+    await db.run(
+        `INSERT INTO itens (id, prestadorId, categoria, nome, descricao, valorReferencia, unidade, ativo, createdAt, updatedAt) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [newItem.id, newItem.prestadorId, newItem.categoria, newItem.nome, newItem.descricao, newItem.valorReferencia, newItem.unidade, newItem.ativo, newItem.createdAt, newItem.updatedAt]
+    );
+
     return newItem;
 };
 
-const update = (id, data) => {
-    initializeItens();
-    const index = itens.findIndex(i => i.id === id);
-    if (index === -1) return null;
+const update = async (id, data) => {
+    const existing = await getById(id);
+    if (!existing) return null;
 
-    itens[index] = {
-        ...itens[index],
+    const updated = {
+        ...existing,
         ...data,
-        id: itens[index].id,
-        prestadorId: itens[index].prestadorId,
-        createdAt: itens[index].createdAt,
         updatedAt: new Date().toISOString()
     };
-    return itens[index];
+
+    await db.run(
+        `UPDATE itens SET 
+            categoria = ?, nome = ?, descricao = ?, valorReferencia = ?, 
+            unidade = ?, ativo = ?, updatedAt = ?
+         WHERE id = ?`,
+        [updated.categoria, updated.nome, updated.descricao, updated.valorReferencia, updated.unidade, updated.ativo ? 1 : 0, updated.updatedAt, id]
+    );
+
+    return updated;
 };
 
-const remove = (id) => {
-    initializeItens();
-    const index = itens.findIndex(i => i.id === id);
-    if (index === -1) return false;
-
-    itens.splice(index, 1);
+const remove = async (id) => {
+    await db.run("DELETE FROM itens WHERE id = ?", [id]);
     return true;
 };
 

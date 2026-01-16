@@ -20,14 +20,14 @@ const validateOferta = (data) => {
 };
 
 // GET /ofertas (filtros query: chamadaId, prestadorId)
-exports.getAll = (req, res) => {
+exports.getAll = async (req, res) => {
     try {
         const filters = {
             chamadaId: req.query.chamadaId,
             prestadorId: req.query.prestadorId
         };
 
-        const ofertas = ofertasData.getAll(filters);
+        const ofertas = await ofertasData.getAll(filters);
         res.json({ success: true, count: ofertas.length, data: ofertas });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Erro ao buscar ofertas' });
@@ -35,9 +35,9 @@ exports.getAll = (req, res) => {
 };
 
 // GET /ofertas/:id
-exports.getById = (req, res) => {
+exports.getById = async (req, res) => {
     try {
-        const oferta = ofertasData.getById(req.params.id);
+        const oferta = await ofertasData.getById(req.params.id);
         if (!oferta) {
             return res.status(404).json({ success: false, error: 'Oferta não encontrada' });
         }
@@ -48,9 +48,9 @@ exports.getById = (req, res) => {
 };
 
 // GET /chamadas/:id/ofertas (Rota aninhada opcional, ou usar getAll com filtro)
-exports.getByChamada = (req, res) => {
+exports.getByChamada = async (req, res) => {
     try {
-        const ofertas = ofertasData.getByChamada(req.params.id);
+        const ofertas = await ofertasData.getByChamada(req.params.id);
         res.json({ success: true, count: ofertas.length, data: ofertas });
     } catch (error) {
         res.status(500).json({ success: false, error: 'Erro ao buscar ofertas da chamada' });
@@ -58,7 +58,7 @@ exports.getByChamada = (req, res) => {
 };
 
 // POST /ofertas
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     try {
         const errors = validateOferta(req.body);
         if (errors.length > 0) {
@@ -66,21 +66,19 @@ exports.create = (req, res) => {
         }
 
         // Verificar se chamada existe
-        const chamada = chamadasData.getById(req.body.chamadaId);
+        const chamada = await chamadasData.getById(req.body.chamadaId);
         if (!chamada) {
             return res.status(404).json({ success: false, error: 'Chamada não encontrada' });
         }
 
         // Verificar se prestador existe
-        const prestador = prestadoresData.getById(req.body.prestadorId);
+        const prestador = await prestadoresData.getById(req.body.prestadorId);
         if (!prestador) {
             return res.status(404).json({ success: false, error: 'Prestador não encontrado' });
         }
 
         // Verificar se o prestador tem uma "possibilidade" (match) para esta chamada
-        // Opcional: permitir ofertas apenas de quem recebeu alerta?
-        // Vamos permitir apenas se houver possibilidade, conforme regra de negócio implícita "alertar prestadores compatíveis"
-        const possibilidades = possibilidadesData.getByChamada(req.body.chamadaId);
+        const possibilidades = await possibilidadesData.getByChamada(req.body.chamadaId);
         const temPossibilidade = possibilidades.some(p => p.prestadorId === req.body.prestadorId);
 
         if (!temPossibilidade) {
@@ -96,7 +94,7 @@ exports.create = (req, res) => {
             prestadorNome: prestador.nome
         };
 
-        const newOferta = ofertasData.create(ofertaData);
+        const newOferta = await ofertasData.create(ofertaData);
 
         res.status(201).json({
             success: true,

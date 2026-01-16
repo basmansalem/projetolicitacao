@@ -1,42 +1,48 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import api, { CATEGORIAS } from '../../services/api';
 import './PrestadorDashboard.css';
 import OportunidadesList from './OportunidadesList';
-import PrestadorFormModal from './PrestadorFormModal';
 
 function PrestadorDashboard() {
-    const [prestador, setPrestador] = useState(null);
-    const [prestadores, setPrestadores] = useState([]);
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    // Estado
     const [itens, setItens] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [message, setMessage] = useState(null);
     const [filtroCategoria, setFiltroCategoria] = useState('');
     const [oportunidadesCount, setOportunidadesCount] = useState(0);
-    const [showNewPrestadorModal, setShowNewPrestadorModal] = useState(false);
+
+    // O ID do prestador vem do usuário logado
+    const prestadorId = user?.relatedId;
+
+    console.log('PrestadorDashboard Debug:', {
+        user,
+        prestadorId,
+        loading,
+        itensCount: itens.length
+    });
 
     useEffect(() => {
-        loadData();
-    }, []);
+        if (prestadorId) {
+            loadData();
+        } else {
+            setLoading(false);
+        }
+    }, [prestadorId]);
 
     const loadData = async () => {
         try {
             setLoading(true);
             setError(null);
 
-            // Carregar prestadores
-            const prestadoresRes = await api.prestadores.getAll();
-            setPrestadores(prestadoresRes.data || []);
-
-            // Usar primeiro prestador como padrão (POC)
-            if (prestadoresRes.data?.length > 0) {
-                setPrestador(prestadoresRes.data[0]);
-
-                // Carregar itens do prestador
-                const itensRes = await api.itens.getAll({ prestadorId: prestadoresRes.data[0].id });
-                setItens(itensRes.data || []);
-            }
+            // Carregar itens do prestador
+            const itensRes = await api.itens.getAll({ prestadorId });
+            setItens(itensRes.data || []);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -44,27 +50,9 @@ function PrestadorDashboard() {
         }
     };
 
-    const handlePrestadorChange = async (e) => {
-        const id = e.target.value;
-        const selected = prestadores.find(p => p.id === id);
-        setPrestador(selected);
-
-        if (selected) {
-            try {
-                const itensRes = await api.itens.getAll({ prestadorId: selected.id });
-                setItens(itensRes.data || []);
-            } catch (err) {
-                setError(err.message);
-            }
-        }
-    };
-
-    const handleNewPrestadorSuccess = (newPrestador) => {
-        setPrestadores(prev => [...prev, newPrestador]);
-        setPrestador(newPrestador);
-        setItens([]); // Novo prestador não tem itens
-        setMessage({ type: 'success', text: `Prestador "${newPrestador.nome}" cadastrado com sucesso!` });
-        setTimeout(() => setMessage(null), 3000);
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
     };
 
     const handleToggleAtivo = async (item) => {
@@ -118,13 +106,26 @@ function PrestadorDashboard() {
         );
     }
 
+    if (!prestadorId) {
+        return (
+            <div className="prestador-dashboard">
+                <header className="dashboard-header">
+                    <h1>🏢 Painel do Prestador</h1>
+                    <button onClick={handleLogout} className="btn btn-secondary">Sair</button>
+                </header>
+                <div className="message message-error">
+                    Erro: Seu usuário não está vinculado a um perfil de prestador válido.
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="prestador-dashboard">
             <header className="dashboard-header">
                 <div className="header-left">
-                    <Link to="/" className="back-link">← Voltar</Link>
-                    <h1>🏢 Área do Prestador</h1>
-                    <p>Gerencie seus itens e visualize oportunidades</p>
+                    <h1>🏢 Painel do Prestador</h1>
+                    <p>Olá, <strong>{user?.nome}</strong></p>
                 </div>
 
                 <div className="header-right">
@@ -136,34 +137,13 @@ function PrestadorDashboard() {
                         )}
                     </div>
 
-                    <div className="user-selector">
-                        <label>Prestador:</label>
-                        <select
-                            value={prestador?.id || ''}
-                            onChange={handlePrestadorChange}
-                            className="prestador-select"
-                        >
-                            {prestadores.map(p => (
-                                <option key={p.id} value={p.id}>{p.nome}</option>
-                            ))}
-                        </select>
-                        <button
-                            className="btn-add-mini"
-                            onClick={() => setShowNewPrestadorModal(true)}
-                            title="Cadastrar Novo Prestador"
-                        >
-                            +
-                        </button>
-                    </div>
+                    <button onClick={handleLogout} className="btn btn-secondary" style={{ marginLeft: '15px' }}>
+                        Sair
+                    </button>
                 </div>
             </header>
 
-            {showNewPrestadorModal && (
-                <PrestadorFormModal
-                    onClose={() => setShowNewPrestadorModal(false)}
-                    onSuccess={handleNewPrestadorSuccess}
-                />
-            )}
+            {/* Modal removido pois o cadastro é na tela de registro */}
 
             {message && (
                 <div className={`message message-${message.type}`}>
@@ -177,10 +157,10 @@ function PrestadorDashboard() {
                 </div>
             )}
 
-            {/* Lista de Oportunidades (Novidade) */}
-            {prestador && (
+            {/* Lista de Oportunidades */}
+            {prestadorId && (
                 <OportunidadesList
-                    prestadorId={prestador.id}
+                    prestadorId={prestadorId}
                     onUpdateCount={setOportunidadesCount}
                 />
             )}

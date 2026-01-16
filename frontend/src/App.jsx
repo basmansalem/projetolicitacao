@@ -1,61 +1,122 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './components/Home';
-import LicitacaoList from './components/LicitacaoList';
-import LicitacaoForm from './components/LicitacaoForm';
-import LicitacaoDetail from './components/LicitacaoDetail';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
+import Dashboard from './components/contratante/Dashboard';
 import PrestadorDashboard from './components/prestador/PrestadorDashboard';
 import ItemForm from './components/prestador/ItemForm';
-import ChamadaList from './components/contratante/ChamadaList';
 import ChamadaForm from './components/contratante/ChamadaForm';
 import ChamadaDetail from './components/contratante/ChamadaDetail';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import AdminDashboard from './components/admin/AdminDashboard'; // Import Admin
+
 import './App.css';
+
+// Componente para proteger rotas e validar perfil
+const PrivateRoute = ({ children, role }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>Carregando autenticação...</div>;
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  if (role) {
+    const roles = Array.isArray(role) ? role : [role];
+    if (!roles.includes(user.perfil)) {
+      // Redireciona para o dashboard correto se tentar acessar rota errada
+      const getFallback = (p) => {
+        if (p === 'prestador') return '/prestador';
+        if (p === 'admin' || p === 'root') return '/admin';
+        return '/contratante';
+      };
+      return <Navigate to={getFallback(user.perfil)} />;
+    }
+  }
+
+  return children;
+};
 
 function App() {
   return (
-    <Router>
-      <div className="app">
-        <header className="app-header">
-          <div className="header-container">
-            <a href="/" className="logo">
-              <span className="logo-icon">📋</span>
-              <span className="logo-text">Sistema de Licitações</span>
-            </a>
-            <nav className="nav">
-              <a href="/" className="nav-link">Início</a>
-              <a href="/prestador" className="nav-link nav-prestador">Prestador</a>
-              <a href="/contratante" className="nav-link nav-contratante">Contratante</a>
-            </nav>
-          </div>
-        </header>
+    <AuthProvider>
+      <Router>
+        <div className="app-container">
+          <main className="app-content">
+            <Routes>
+              {/* Rotas Públicas */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-        <main className="app-main">
-          <Routes>
-            {/* Home */}
-            <Route path="/" element={<Home />} />
+              {/* Rota raiz redireciona para login */}
+              <Route path="/" element={<Navigate to="/login" />} />
 
-            {/* Prestador */}
-            <Route path="/prestador" element={<PrestadorDashboard />} />
-            <Route path="/prestador/item/novo" element={<ItemForm />} />
-            <Route path="/prestador/item/:id" element={<ItemForm />} />
+              {/* Área do Contratante */}
+              <Route
+                path="/contratante"
+                element={
+                  <PrivateRoute role="contratante">
+                    <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/contratante/chamada/nova"
+                element={
+                  <PrivateRoute role="contratante">
+                    <ChamadaForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/contratante/chamada/:id"
+                element={
+                  <PrivateRoute role="contratante">
+                    <ChamadaDetail />
+                  </PrivateRoute>
+                }
+              />
 
-            {/* Contratante */}
-            <Route path="/contratante" element={<ChamadaList />} />
-            <Route path="/contratante/chamada/nova" element={<ChamadaForm />} />
-            <Route path="/contratante/chamada/:id" element={<ChamadaDetail />} />
-
-            {/* Licitações (legado) */}
-            <Route path="/licitacoes" element={<LicitacaoList />} />
-            <Route path="/nova" element={<LicitacaoForm />} />
-            <Route path="/editar/:id" element={<LicitacaoForm />} />
-            <Route path="/licitacao/:id" element={<LicitacaoDetail />} />
-          </Routes>
-        </main>
-
-        <footer className="app-footer">
-          <p>Sistema de Controle de Licitações - POC v2.0 © 2026</p>
-        </footer>
-      </div>
-    </Router>
+              {/* Área do Prestador */}
+              <Route
+                path="/prestador"
+                element={
+                  <PrivateRoute role="prestador">
+                    <PrestadorDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/prestador/item/novo"
+                element={
+                  <PrivateRoute role="prestador">
+                    <ItemForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/prestador/item/:id"
+                element={
+                  <PrivateRoute role="prestador">
+                    <ItemForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute role={['admin', 'root']}>
+                    <AdminDashboard />
+                  </PrivateRoute>
+                }
+              />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

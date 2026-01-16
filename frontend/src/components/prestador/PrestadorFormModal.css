@@ -58,6 +58,84 @@
     box-shadow: 0 0 0 2px rgba(93, 95, 239, 0.1);
 }
 
+.cnae-loading {
+    position: absolute;
+    right: 10px;
+    top: 38px;
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.cnae-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 100;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cnae-results li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.cnae-results li:hover {
+    background-color: #f8f9fa;
+    color: #5d5fef;
+}
+
+.cnae-results li:last-child {
+    border-bottom: none;
+}
+
+.cnae-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.cnae-tag {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #c8e6c9;
+}
+
+.cnae-tag button {
+    background: none;
+    border: none;
+    color: #2e7d32;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.cnae-tag button:hover {
+    color: #1b5e20;
+}
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;
@@ -97,4 +175,43 @@
 .btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+}
+
+.message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.message-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.message-error {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-height: 90vh;
+    overflow-y: auto;
 }

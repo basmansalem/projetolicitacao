@@ -1,71 +1,48 @@
 const { v4: uuidv4 } = require('uuid');
-
-// Dados em memória para prestadores
-let prestadores = [
-    {
-        id: uuidv4(),
-        nome: 'Tech Solutions Ltda',
-        tipo: 'empresa',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    },
-    {
-        id: uuidv4(),
-        nome: 'Construtora Alfa',
-        tipo: 'empresa',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    },
-    {
-        id: uuidv4(),
-        nome: 'João Silva - Consultor',
-        tipo: 'pessoa',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    }
-];
+const db = require('../db/database');
 
 // Tipos de prestador
 const TIPOS_PRESTADOR = ['empresa', 'pessoa'];
 
-// Funções de acesso aos dados
-const getAll = () => prestadores;
+const getAll = async () => {
+    return await db.query("SELECT * FROM prestadores");
+};
 
-const getById = (id) => prestadores.find(p => p.id === id);
+const getById = async (id) => {
+    return await db.get("SELECT * FROM prestadores WHERE id = ?", [id]);
+};
 
-const create = (data) => {
+const create = async (data) => {
     const newPrestador = {
         id: uuidv4(),
         nome: data.nome,
-        tipo: data.tipo || 'empresa',
+        email: data.email || '',
+        tipo: data.tipo || 'pessoa',
         cnpj: data.cnpj || '',
-        categoria: data.categoria || '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        cpf: data.cpf || '',
+        categoria: data.categoria || 'Geral'
     };
-    prestadores.push(newPrestador);
+
+    await db.run(
+        `INSERT INTO prestadores (id, nome, email, tipo, cnpj, cpf, categoria) 
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [newPrestador.id, newPrestador.nome, newPrestador.email, newPrestador.tipo, newPrestador.cnpj, newPrestador.cpf, newPrestador.categoria]
+    );
+
     return newPrestador;
 };
 
-const update = (id, data) => {
-    const index = prestadores.findIndex(p => p.id === id);
-    if (index === -1) return null;
-
-    prestadores[index] = {
-        ...prestadores[index],
-        ...data,
-        id: prestadores[index].id,
-        createdAt: prestadores[index].createdAt,
-        updatedAt: new Date().toISOString()
-    };
-    return prestadores[index];
+const update = async (id, data) => {
+    // Simplified update (full update)
+    await db.run(
+        `UPDATE prestadores SET nome = ?, email = ?, categoria = ? WHERE id = ?`,
+        [data.nome, data.email, data.categoria, id]
+    );
+    return { id, ...data };
 };
 
-const remove = (id) => {
-    const index = prestadores.findIndex(p => p.id === id);
-    if (index === -1) return false;
-
-    prestadores.splice(index, 1);
+const remove = async (id) => {
+    await db.run("DELETE FROM prestadores WHERE id = ?", [id]);
     return true;
 };
 

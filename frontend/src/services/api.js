@@ -252,6 +252,30 @@ const api = {
             if (!response.ok) throw new Error(data.errors?.join(', ') || data.error);
             return data;
         }
+    },
+    admin: {
+        async getAllUsers() {
+            const response = await fetch(`${API_BASE_URL}/admin/users`);
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Erro ao buscar usuários');
+            return data;
+        },
+        async toggleStatus(id) {
+            const response = await fetch(`${API_BASE_URL}/admin/users/${id}/status`, {
+                method: 'PATCH'
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Erro ao alterar status');
+            return data;
+        },
+        async resetPassword(id) {
+            const response = await fetch(`${API_BASE_URL}/admin/users/${id}/reset-password`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Erro ao redefinir senha');
+            return data;
+        }
     }
 };
 

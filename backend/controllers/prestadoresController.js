@@ -11,21 +11,44 @@ const validatePrestador = (data, isUpdate = false) => {
         }
     }
 
+    if (!isUpdate || data.email !== undefined) {
+        if (!data.email || data.email.trim() === '') {
+            errors.push('O campo "email" é obrigatório');
+        }
+    }
+
+    if (!isUpdate || data.telefone !== undefined) {
+        if (!data.telefone || data.telefone.trim() === '') {
+            errors.push('O campo "telefone" é obrigatório');
+        }
+    }
+
     if (data.tipo && !prestadoresData.TIPOS_PRESTADOR.includes(data.tipo)) {
         errors.push(`Tipo inválido. Valores permitidos: ${prestadoresData.TIPOS_PRESTADOR.join(', ')}`);
     }
 
     if (!isUpdate || data.cnpj !== undefined) {
         if (data.tipo === 'empresa' && (!data.cnpj || data.cnpj.trim() === '')) {
-            // Validar apenas se for empresa e estiver sendo enviado
-            // Nota: Para POC não vamos validar o formato estrito do CNPJ
-            // errors.push('CNPJ é obrigatório para empresas');
+            errors.push('CNPJ é obrigatório para empresas');
         }
     }
 
+    if (!isUpdate || data.cpf !== undefined) {
+        if (data.tipo === 'pessoa' && (!data.cpf || data.cpf.trim() === '')) {
+            errors.push('CPF é obrigatório para pessoa física');
+        }
+    }
+
+    // CNAE opcional ou obrigatório? Usuário pediu "incluir". 
+    // Se quiser obrigatório para empresa:
+    // if (data.tipo === 'empresa' && (!data.cnaes || data.cnaes.length === 0)) { 
+    //    errors.push('Pelo menos um CNAE é obrigatório para empresas'); 
+    // }
+
     if (!isUpdate || data.categoria !== undefined) {
-        if (data.categoria && !itensData.CATEGORIAS.includes(data.categoria)) {
-            // Validar categoria se fornecida
+        if (!data.categoria) {
+            errors.push('O campo "categoria" é obrigatório');
+        } else if (!itensData.CATEGORIAS.includes(data.categoria)) {
             errors.push(`Categoria inválida. Valores permitidos: ${itensData.CATEGORIAS.join(', ')}`);
         }
     }

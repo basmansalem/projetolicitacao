@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
+const db = require('../db/database');
 
 // Status das chamadas
 const STATUS_CHAMADA = [
@@ -8,51 +9,30 @@ const STATUS_CHAMADA = [
     'Encerrada'
 ];
 
-// Dados em memória para chamadas
-let chamadas = [
-    {
-        id: uuidv4(),
-        titulo: 'Desenvolvimento de Portal Institucional',
-        descricao: 'Contratação de empresa para desenvolvimento de portal web institucional com CMS integrado',
-        categoria: 'Tecnologia',
-        quantidade: 1,
-        valorMaximo: 150000,
-        prazoExecucao: '2026-06-30',
-        status: 'Aberta',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    },
-    {
-        id: uuidv4(),
-        titulo: 'Reforma do Prédio Administrativo',
-        descricao: 'Serviços de reforma geral do prédio administrativo incluindo pintura e instalações',
-        categoria: 'Construção Civil',
-        quantidade: 1,
-        valorMaximo: 500000,
-        prazoExecucao: '2026-12-31',
-        status: 'Aberta',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    }
-];
-
-// Funções de acesso aos dados
-const getAll = (filters = {}) => {
-    let result = [...chamadas];
+const getAll = async (filters = {}) => {
+    let sql = "SELECT * FROM chamadas WHERE 1=1";
+    const params = [];
 
     if (filters.categoria) {
-        result = result.filter(c => c.categoria === filters.categoria);
+        sql += " AND categoria = ?";
+        params.push(filters.categoria);
     }
     if (filters.status) {
-        result = result.filter(c => c.status === filters.status);
+        sql += " AND status = ?";
+        params.push(filters.status);
     }
 
-    return result;
+    // Default sorting by creation date DESC
+    sql += " ORDER BY createdAt DESC";
+
+    return await db.query(sql, params);
 };
 
-const getById = (id) => chamadas.find(c => c.id === id);
+const getById = async (id) => {
+    return await db.get("SELECT * FROM chamadas WHERE id = ?", [id]);
+};
 
-const create = (data) => {
+const create = async (data) => {
     const newChamada = {
         id: uuidv4(),
         titulo: data.titulo,
@@ -65,29 +45,39 @@ const create = (data) => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
-    chamadas.push(newChamada);
+
+    await db.run(
+        `INSERT INTO chamadas (id, titulo, descricao, categoria, quantidade, valorMaximo, prazoExecucao, status, createdAt, updatedAt) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [newChamada.id, newChamada.titulo, newChamada.descricao, newChamada.categoria, newChamada.quantidade, newChamada.valorMaximo, newChamada.prazoExecucao, newChamada.status, newChamada.createdAt, newChamada.updatedAt]
+    );
+
     return newChamada;
 };
 
-const update = (id, data) => {
-    const index = chamadas.findIndex(c => c.id === id);
-    if (index === -1) return null;
+const update = async (id, data) => {
+    const existing = await getById(id);
+    if (!existing) return null;
 
-    chamadas[index] = {
-        ...chamadas[index],
+    const updated = {
+        ...existing,
         ...data,
-        id: chamadas[index].id,
-        createdAt: chamadas[index].createdAt,
         updatedAt: new Date().toISOString()
     };
-    return chamadas[index];
+
+    await db.run(
+        `UPDATE chamadas SET 
+            titulo = ?, descricao = ?, categoria = ?, quantidade = ?, 
+            valorMaximo = ?, prazoExecucao = ?, status = ?, updatedAt = ?
+         WHERE id = ?`,
+        [updated.titulo, updated.descricao, updated.categoria, updated.quantidade, updated.valorMaximo, updated.prazoExecucao, updated.status, updated.updatedAt, id]
+    );
+
+    return updated;
 };
 
-const remove = (id) => {
-    const index = chamadas.findIndex(c => c.id === id);
-    if (index === -1) return false;
-
-    chamadas.splice(index, 1);
+const remove = async (id) => {
+    await db.run("DELETE FROM chamadas WHERE id = ?", [id]);
     return true;
 };
 

@@ -7,6 +7,8 @@ const prestadoresRoutes = require('./routes/prestadores');
 const itensRoutes = require('./routes/itens');
 const chamadasRoutes = require('./routes/chamadas');
 const ofertasRoutes = require('./routes/ofertas');
+const authRoutes = require('./routes/authRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -23,6 +25,8 @@ app.use('/prestadores', prestadoresRoutes);
 app.use('/itens', itensRoutes);
 app.use('/chamadas', chamadasRoutes);
 app.use('/ofertas', ofertasRoutes);
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
 
 // Health check
 app.get('/', (req, res) => {
@@ -53,8 +57,30 @@ app.use((req, res) => {
     res.status(404).json({ error: 'Rota não encontrada' });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+// Health check
+app.get('/', (req, res) => {
+    res.json({ status: 'API Backend Licitações Running' });
+});
+
+app.listen(PORT, async () => {
+    console.log(`Server running on port ${PORT}`);
+
+    // Seed Admin User after server starts (to ensure DB tables exist)
+    try {
+        const usersData = require('./data/users');
+        const bcrypt = require('bcryptjs');
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync('admin', salt); // Senha padrão: admin
+        const hashRoot = bcrypt.hashSync('root123', salt); // Senha Root: root123
+
+        // Pequeno delay para garantir que o sqlite criou as tabelas
+        setTimeout(async () => {
+            await usersData.seedAdmin(hash);
+            await usersData.seedRoot(hashRoot);
+        }, 1000);
+    } catch (err) {
+        console.error("Erro ao semear admin:", err);
+    }
     console.log(`📋 Endpoints disponíveis:`);
     console.log(`   - Licitações: http://localhost:${PORT}/licitacoes`);
     console.log(`   - Prestadores: http://localhost:${PORT}/prestadores`);

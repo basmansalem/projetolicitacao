@@ -3,23 +3,32 @@ const itensData = require('./itens');
 const prestadoresData = require('./prestadores');
 const chamadasData = require('./chamadas');
 
-// Dados em memória para possibilidades
-let possibilidades = [];
+// Helper to calculate score
+const calculateScore = (chamada, itens) => {
+    let score = 100;
+    score += (itens.length - 1) * 5;
 
-// Gerar possibilidades para uma chamada
-const gerarPossibilidades = (chamada) => {
-    // Remover possibilidades antigas desta chamada
-    possibilidades = possibilidades.filter(p => p.chamadaId !== chamada.id);
+    if (chamada.valorMaximo) {
+        const valorMedio = itens.reduce((acc, i) => acc + i.valorReferencia, 0) / itens.length;
+        if (valorMedio <= chamada.valorMaximo * 0.5) {
+            score += 10;
+        }
+    }
+    return Math.min(score, 120);
+};
 
-    // Buscar itens ativos na mesma categoria
-    const itensCompativeis = itensData.getByCategoria(chamada.categoria, true);
+// Generate possibilities on-the-fly (not persisted)
+const gerarPossibilidades = async (chamada) => {
+    if (!chamada) return [];
 
-    // Filtrar por valor máximo (se definido)
+    // Busca itens compatíveis (async)
+    // Note: getByCategoria is async now
+    const itensCompativeis = await itensData.getByCategoria(chamada.categoria, true);
+
     const itensFiltrados = chamada.valorMaximo
         ? itensCompativeis.filter(i => i.valorReferencia <= chamada.valorMaximo)
         : itensCompativeis;
 
-    // Agrupar itens por prestador
     const itensPorPrestador = {};
     itensFiltrados.forEach(item => {
         if (!itensPorPrestador[item.prestadorId]) {
@@ -28,32 +37,21 @@ const gerarPossibilidades = (chamada) => {
         itensPorPrestador[item.prestadorId].push(item);
     });
 
-    // Criar possibilidades para cada prestador
     const novasPossibilidades = [];
 
-    Object.entries(itensPorPrestador).forEach(([prestadorId, itens]) => {
-        const prestador = prestadoresData.getById(prestadorId);
-        if (!prestador) return;
+    // Processing prestadores in parallel or serial? Serial is safer for now.
+    // keys of itensPorPrestador
+    const prestadorIds = Object.keys(itensPorPrestador);
 
-        // Calcular score de compatibilidade
-        let score = 100;
+    for (const prestadorId of prestadorIds) {
+        const prestador = await prestadoresData.getById(prestadorId);
+        if (!prestador) continue;
 
-        // Bonus por ter múltiplos itens compatíveis
-        score += (itens.length - 1) * 5;
+        const itens = itensPorPrestador[prestadorId];
+        const score = calculateScore(chamada, itens);
 
-        // Bonus se valor médio é <= 50% do máximo
-        if (chamada.valorMaximo) {
-            const valorMedio = itens.reduce((acc, i) => acc + i.valorReferencia, 0) / itens.length;
-            if (valorMedio <= chamada.valorMaximo * 0.5) {
-                score += 10;
-            }
-        }
-
-        // Limitar score máximo
-        score = Math.min(score, 120);
-
-        const possibilidade = {
-            id: uuidv4(),
+        novasPossibilidades.push({
+            id: uuidv4(), // Generated on fly, ephemeral
             chamadaId: chamada.id,
             prestadorId: prestadorId,
             prestadorNome: prestador.nome,
@@ -68,59 +66,39 @@ const gerarPossibilidades = (chamada) => {
             valorTotal: itens.reduce((acc, i) => acc + i.valorReferencia, 0),
             scoreCompatibilidade: score,
             createdAt: new Date().toISOString()
-        };
+        });
+    }
 
-        novasPossibilidades.push(possibilidade);
-        possibilidades.push(possibilidade);
-    });
-
-    // Ordenar por score (maior primeiro)
     novasPossibilidades.sort((a, b) => b.scoreCompatibilidade - a.scoreCompatibilidade);
-
     return novasPossibilidades;
 };
 
-// Funções de acesso aos dados
-const getByChamada = (chamadaId) => {
-    return possibilidades
-        .filter(p => p.chamadaId === chamadaId)
-        .sort((a, b) => b.scoreCompatibilidade - a.scoreCompatibilidade);
+const getByChamada = async (chamadaId) => {
+    // Need to fetch chamada first to know criteria
+    const chamada = await chamadasData.getById(chamadaId);
+    if (!chamada) return [];
+    return await gerarPossibilidades(chamada);
 };
 
-const getById = (id) => possibilidades.find(p => p.id === id);
-
-const getAll = () => possibilidades;
-
-const countByChamada = (chamadaId) => {
-    return possibilidades.filter(p => p.chamadaId === chamadaId).length;
+const countByChamada = async (chamadaId) => {
+    const list = await getByChamada(chamadaId);
+    return list.length;
 };
 
-const removeByChamada = (chamadaId) => {
-    possibilidades = possibilidades.filter(p => p.chamadaId !== chamadaId);
+// No longer needing removal or updates because it's dynamic
+const removeByChamada = async (chamadaId) => {
+    return true;
 };
 
-// Atualizar possibilidades quando um item é criado ou alterado
-const atualizarPorItem = (item) => {
-    // Buscar chamadas da mesma categoria e "Aberta" ou "Em análise" (que aceitam propostas)
-    const allChamadas = chamadasData.getAll();
-    const chamadasRelevantes = allChamadas.filter(c =>
-        c.categoria === item.categoria &&
-        (c.status === 'Aberta' || c.status === 'Em análise')
-    );
-
-    console.log(`[Possibilidades] Item atualizado: ${item.nome}. Atualizando ${chamadasRelevantes.length} chamadas.`);
-
-    chamadasRelevantes.forEach(chamada => {
-        gerarPossibilidades(chamada);
-    });
+const actualizarPorItem = async (item) => {
+    // No-op for dynamic calculation
+    return true;
 };
 
 module.exports = {
     gerarPossibilidades,
     getByChamada,
-    getById,
-    getAll,
     countByChamada,
     removeByChamada,
-    atualizarPorItem
+    atualizarPorItem: actualizarPorItem
 };
